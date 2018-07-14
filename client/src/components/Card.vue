@@ -7,7 +7,7 @@
                 </div>
                 <div class="col-8">
                     <h3>{{ firstName }} {{ lastName }}</h3>
-                    <p>{{ group }}</p>
+                    <p>{{ party }}</p>
                 </div>
             </div>
             <div class="row">
@@ -34,7 +34,7 @@
             firstName: String,
             lastName: String,
             portraitUrl: String,
-            group: String,
+            party: String,
             attributes: Array,
         },
        /* data: function () {
