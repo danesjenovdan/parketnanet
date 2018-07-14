@@ -47,7 +47,7 @@ export default {
           email: currentUser.email,
           score: 0,
         }).then((docRef) => {
-          this.dbUserId = docRef;
+          this.dbUserId = docRef.id;
         });
       } else {
         // is user
