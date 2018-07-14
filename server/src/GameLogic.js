@@ -3,21 +3,26 @@ const { generateDeck } = require('./cards');
 module.exports = class GameLogic {
   constructor(p1, p2) {
     this.players = [p1, p2];
-    
+    this.players.forEach((player, index) => {
+      player.on('game', payload => this.onAction(index, payload));
+      player.on('disconnect', () => this.killGame());
+    });
+    this.sendToPlayers('status', 'GAME_START');
+
     this.state = {
       decks: [generateDeck(), generateDeck()],
       pot: [],
       winnings: [[], []],
       playing: 0,
       selectedAttribute: null,
-    }
+    };
 
-    this.players.forEach((player, index) => {
-      player.on('game', payload => this.onAction(index, payload))
-    })
-
-    this.sendToPlayers('status', 'GAME_START');
+    this.drawCards();
     this.sendState();
+  }
+
+  getAttributeValueForPlayer(attributeName, playerIndex) {
+    return this.state.pot[playerIndex].getAttribute(attributeName).value;
   }
 
   sendToPlayers(type, data) {
@@ -31,6 +36,7 @@ module.exports = class GameLogic {
   }
 
   generatePlayerState(index) {
+    console.log(this.state.pot)
     return {
       playing: this.state.playing === index,
       score: {
@@ -44,12 +50,12 @@ module.exports = class GameLogic {
       selectedAttribute: this.state.selectedAttribute,
       turnOutcome: (() => {
         if (this.state.selectedAttribute) {
-          return this.state.pot[index].getAttribute(this.state.selectedAttribute).value >
-            this.state.pot[1-index].getAttribute(this.state.selectedAttribute).value
-              ? 'win'
-              : 'lose';
+          return this.getAttributeValueForPlayer(this.state.selectedAttribute, index)
+          > this.getAttributeValueForPlayer(this.state.selectedAttribute, 1 - index)
+            ? 'win'
+            : 'lose';
         }
-        return 'undetermined'
+        return 'undetermined';
       })(),
       gameOutcome: (() => {
         if (this.state.decks[0].length === 0) {
@@ -58,25 +64,49 @@ module.exports = class GameLogic {
             : 'lose';
         }
         return 'undetermined';
-      })()
-    }
+      })(),
+    };
   }
 
   sendState() {
-    this.sendToPlayer(0, 'game', this.generatePlayerState(0))
-    this.sendToPlayer(1, 'game', this.generatePlayerState(1))
+    this.sendToPlayer(0, 'game', this.generatePlayerState(0));
+    this.sendToPlayer(1, 'game', this.generatePlayerState(1));
   }
 
-  onAction(playerIndex, { action }) {
+  drawCards() {
+    this.state.pot = [this.state.decks[0].pop(), this.state.decks[1].pop()];
+  }
+
+  onAction(playerIndex, { action, data }) {
     if (this.state.playing === playerIndex) {
-      switch(action) {
-        case 'DRAW_CARD':
-          this.state.pot = [this.state.decks[0].pop(), this.state.decks[1].pop()];
+      switch (action) {
+        case 'SELECT_ATTRIBUTE': {
+          this.state.selectedAttribute = data;
+          this.sendState();
+          const current = this.getAttributeValueForPlayer(this.state.selectedAttribute, playerIndex);
+          const opponent = this.getAttributeValueForPlayer(this.state.selectedAttribute, 1 - playerIndex);
+          if (current > opponent) {
+            this.state.winnings[playerIndex].push(...this.state.pot);
+          } else if (current === opponent) {
+            // TODO
+          } else {
+            this.state.winnings[1 - playerIndex].push(...this.state.pot);
+          }
+          this.state.selectedAttribute = null;
+          this.drawCards();
+          this.sendState();
           break;
+        }
         default:
           break;
       }
     }
-    this.sendState();
+  }
+
+  killGame() {
+    console.log('GAME WAS KILLED');
+    this.sendToPlayers('status', 'SOMEONE_DISCONNECTED');
+    this.players.forEach(player => player.disconnect(true));
+    this.players = [];
   }
 };

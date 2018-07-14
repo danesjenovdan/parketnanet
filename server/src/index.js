@@ -32,6 +32,7 @@ io.on('connection', (sock) => {
   } else {
     player1 = sock;
     player1.emit('status', 'WAITING_FOR_OPPONENT');
+    player1.on('disconnect', () => { player1 = null; });
   }
 });
 

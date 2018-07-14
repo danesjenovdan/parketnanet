@@ -13,7 +13,11 @@
             <div class="row">
                 <div class="col-12">
                     <table class="table">
-                        <tr v-for="attribute in attributes" v-on:click="$emit('selectAttribute', attribute)">
+                        <tr
+                            v-for="attribute in attributes"
+                            :key="attribute.name"
+                            @click="$emit('selectAttribute', attribute)"
+                        >
                             <td>{{ attribute.name }}</td>
                             <td>{{ attribute.value }}</td>
                         </tr>
