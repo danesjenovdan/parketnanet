@@ -1,10 +1,10 @@
 <template>
     <div id="scorekeeper" class="row">
-        <div class="col-12" v-if="state && state.currentState === 'GAME_ENDED'">
+        <div class="col-12">
             <div class="my-5 text-center">
-                <h3>
-                    Trenutno imaš na Parketnanet {{ user.score + state.score.you }} točk.
-                </h3>
+                <h6>
+                    Trenutno imaš na Parketnanet {{ user.score }} točk.
+                </h6>
             </div>
         </div>
     </div>
