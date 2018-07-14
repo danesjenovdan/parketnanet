@@ -2,7 +2,7 @@
     <div class="card position-relative">
         <div class="card-header">
             <div>
-                <h4 class="text-uppercase text-center mb-0 py-5">Kupček kart ({{ queueLength }})</h4>
+                <h4 class="text-uppercase text-center mb-0 py-5">Naprej <small>({{ queueLength }})</small></h4>
             </div>
         </div>
         <div class="card card-back">

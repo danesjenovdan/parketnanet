@@ -2,11 +2,11 @@
   <div id="app">
     <Navbar></Navbar>
     <div class="container-fluid">
-      <h1>{{ connectionState }}</h1>
-      <template v-if="state">
+      <ConnectionState :state="connectionState"></ConnectionState>
+      <template v-if="state && connectionState !== 'SOMEONE_DISCONNECTED'">
         <div class="row">
           <div class="col-4">
-            <TurnOrder></TurnOrder>
+            <TurnOrder :state="state"></TurnOrder>
             <Score class="mt-4" title="Tvoje točke" :score="state.score.you"></Score>
             <Score class="mt-4" title="Nasprotnikove točke" :score="state.score.opponent"></Score>
           </div>
@@ -45,6 +45,7 @@ import Navbar from "./components/Navbar.vue";
 import TurnOrder from "./components/TurnOrder.vue";
 import Score from "./components/Score.vue";
 import Deck from "./components/Deck.vue";
+import ConnectionState from "./components/ConnectionState.vue";
 
 export default {
   name: "app",
@@ -54,7 +55,8 @@ export default {
     Navbar,
     TurnOrder,
     Score,
-    Deck
+    Deck,
+    ConnectionState,
   },
   data() {
     return {
@@ -75,7 +77,7 @@ export default {
     },
     selectAttribute(attribute) {
       if (this.canPlay) {
-        this.state.playing = false;
+      //  this.state.playing = false;
         this.sendAction('SELECT_ATTRIBUTE', attribute.name);
       }
     }
