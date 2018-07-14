@@ -137,7 +137,7 @@ class GameLogic {
 
   getGameOutcome(playerIndex) {
     if (this.state.decks[0].length === 0) {
-      return this.state.decks[playerIndex].length > this.state.decks[1 - playerIndex].length
+      return this.state.winnings[playerIndex].length > this.state.winnings[1 - playerIndex].length
         ? 'win'
         : 'lose';
     }

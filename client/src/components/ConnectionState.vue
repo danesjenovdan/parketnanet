@@ -2,10 +2,10 @@
     <div>
         <div class="row">
             <div class="col-12 text-center">
-                <div v-if="state === 'WAITING_FOR_OPPONENT'">
+                <div class="my-5" v-if="state === 'WAITING_FOR_OPPONENT'">
                     <h1 class="text-uppercase">Čakam na nasprotnika</h1>
                 </div>
-                <div v-else-if="state === 'SOMEONE_DISCONNECTED'">
+                <div class="my-5" v-else-if="state === 'SOMEONE_DISCONNECTED'">
                     <h1 class="text-uppercase">Nasprotnik se je odjavil</h1>
                     <button class="btn btn-lg btn-primary mt-5" @click="refresh">Poišči novega nasprotnika</button>
                 </div>

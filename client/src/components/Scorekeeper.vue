@@ -1,5 +1,13 @@
 <template>
-  <div id="scorekeeper"><button @click="incrementScore(1)">increment</button>{{ user.score }}</div>
+    <div id="scorekeeper" class="row">
+        <div class="col-12" v-if="state && state.currentState === 'GAME_ENDED'">
+            <div class="my-5 text-center">
+                <h3>
+                    Trenutno imaš na Parketnanet {{ user.score + state.score.you }} točk.
+                </h3>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -19,6 +27,8 @@ export default {
       dbUserId: '',
     };
   },
+
+  props: ['state'],
 
   methods: {
     incrementScore(amount) {

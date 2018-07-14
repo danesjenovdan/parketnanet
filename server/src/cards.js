@@ -31,4 +31,4 @@ request.get({
   }
 });
 
-exports.generateDeck = () => _.sampleSize(allCards, 10);
+exports.generateDeck = () => _.sampleSize(allCards, 1);
