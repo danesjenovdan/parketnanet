@@ -6,8 +6,12 @@ const allCards = data.data.map(member => new Card({
   name: member.person.name,
   party: member.person.party.acronym,
   attributes: [
-    { name: 'spokenWords', value: member.results.spoken_words.score },
-    { name: 'presence', value: member.results.presence_sessions.rank },
+    { name: 'mandates', value: member.results.mandates.score },
+    { name: 'education', value: Number(member.results.education.score.replace('/', '.')) },
+    { name: 'presence', value: member.results.presence_votes.score },
+    { name: 'nonconformity', value: Number(member.results.mismatch_of_pg.score) },
+    { name: 'words', value: member.results.spoken_words.score },
+    { name: 'vocabulary', value: member.results.vocabulary_size.score },
   ],
 }));
 
