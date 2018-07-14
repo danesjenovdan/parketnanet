@@ -12,7 +12,10 @@ export default {
     return {
       db: null,
       query: null,
-      user: null,
+      user: {
+        email: '',
+        score: 0,
+      },
       dbUserId: '',
     };
   },
