@@ -8,7 +8,7 @@ let allCards;
 request.get({
   url: API_URL,
   json: true,
-  headers: {'User-Agent': 'request'}
+  headers: { 'User-Agent': 'request' },
 }, (err, res, data) => {
   if (err) {
     console.log('Error:', err);

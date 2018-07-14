@@ -74,6 +74,7 @@ export default {
       state: null,
       socket: null,
       connectionState: 'NOT INITIALIZED',
+      myId: null,
     };
   },
   methods: {
@@ -98,9 +99,18 @@ export default {
     }
   },
   created() {
-    this.socket = io("http://127.0.0.1:8081");
+    const { opponentMode } = this.$route.query;
+
+    if (opponentMode === 'stranger') {
+      this.socket = io("http://127.0.0.1:8081");
+    } else {
+      this.socket = io("http://127.0.0.1:8081/friend")
+    }
+
     this.socket.on("status", response => {
       this.connectionState = response;
+      this.myId = this.socket.id;
+      debugger;
     });
 
     this.socket.on("game", response => {

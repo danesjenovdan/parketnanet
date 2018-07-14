@@ -15,10 +15,11 @@ app.use(express.static(clientPath));
 
 const server = http.createServer(app);
 const io = socketio(server);
+const friendIo = io.of('/friend');
 
 const players = [];
 
-io.on('connection', (sock) => {
+const onConnection = (sock) => {
   sock.emit('status', 'CONNECTED');
 
   if (players.length) {
@@ -36,7 +37,10 @@ io.on('connection', (sock) => {
       _.pull(players, sock);
     });
   }
-});
+};
+
+io.on('connection', onConnection);
+friendIo.on('connection', onConnection);
 
 server.on('error', (error) => {
   console.error('server error:', error);
