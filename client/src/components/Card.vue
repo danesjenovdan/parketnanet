@@ -6,7 +6,7 @@
                     <img src="http://placehold.it/200x200" alt="" class="img-fluid img-thumbnail">
                 </div>
                 <div class="col-8">
-                    <h3>{{ firstName }} {{ lastName }}</h3>
+                    <h3>{{ name }}</h3>
                     <p>{{ party }}</p>
                 </div>
             </div>
@@ -31,8 +31,7 @@
     export default {
         name: 'Card',
         props: {
-            firstName: String,
-            lastName: String,
+            name: String,
             portraitUrl: String,
             party: String,
             attributes: Array,

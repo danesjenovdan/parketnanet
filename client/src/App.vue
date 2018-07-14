@@ -5,31 +5,26 @@
             <div class="row">
                 <div class="col-4">
                     <TurnOrder></TurnOrder>
-                    <Score class="mt-4" title="Tvoje točke" score="2"></Score>
-                    <Score class="mt-4" title="Nasprotnikove točke" score="3"></Score>
+                    <Score class="mt-4" title="Tvoje točke" :score="score.you"></Score>
+                    <Score class="mt-4" title="Nasprotnikove točke" :score="score.opponent"></Score>
                 </div>
                 <div class="col-8">
-                    <Card firstName="Jožef" lastName="Horvat" party="NSI" :attributes="attributes"></Card>
+                    <Card v-if="card" @selectAttribute="playStat" :name="card.name" :party="card.party" :attributes="card.attributes"></Card>
                 </div>
             </div>
             <div class="row">
                 <div class="offset-8 col-4">
-                    <Deck></Deck>
+                    <Deck @click.native="drawCard"></Deck>
                 </div>
             </div>
         </div>
-
-        <div>player deck: {{ playerDeck }}</div>
-        <div>oponnent deck: {{ oponnentDeck }}</div>
-        <div>player winnings: {{ playerWinnings }}</div>
-        <div>oponnent winnings: {{ oponnentWinnings }}</div>
-        <button @click="makeMove">Potegni karto</button>
     </div>
 </template>
 
 <script>
+    import { drawCard, getScore, playStat } from './state';
     import {generateDeck} from './cards';
-    // import state from './state';
+    import state from './state';
     import HelloWorld from './components/HelloWorld.vue';
     import Card from './components/Card.vue';
     import Navbar from './components/Navbar.vue';
@@ -45,30 +40,29 @@
         },
         data() {
             return {
-                playerDeck: generateDeck(),
-                oponnentDeck: generateDeck(),
-                pot: [],
-                playerWinnings: [],
-                oponnentWinnings: [],
-                turn: 'player',
-
-
-                attributes: [{name: 'Število mandatov', value: 3}],
+              card: null,
+              turnOutcome: null,
+              score: getScore(),
+              gameOver: false,
             };
         },
         methods: {
-            makeMove() {
-                this.pot.push(this.playerDeck.pop(), this.oponnentDeck.pop());
-                if (this.pot[0].score > this.pot[1].score) {
-                    this.playerWinnings = this.playerWinnings.concat(this.pot);
-                } else {
-                    this.oponnentWinnings = this.oponnentWinnings.concat(this.pot);
+            drawCard() {
+                this.turnOutcome = null;
+                this.card = drawCard();
+            },
+            playStat(stat) {
+                const outcome = playStat(stat.name)
+                this.turnOutcome = outcome.turn;
+                this.score = getScore();
+                
+                if (outcome.game !== 'undetermined') {
+                    this.gameOver = true;
+                    this.gameOutcome = `game over, you ${outcome.game}`;
                 }
-                this.pot = []
-            }
-        }
-    }
-</script>
 
-<style>
-</style>
+                this.card = null;
+            }
+        },
+    };
+</script>
