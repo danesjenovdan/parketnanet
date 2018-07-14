@@ -10,6 +10,17 @@ var VueFire = require('vuefire');
 var firebase = require('firebase');
 Vue.use(VueFire);
 
+const config = {
+  apiKey: 'AIzaSyCoxecQljnOHkZ5Vme96Vy1ktIaFSjibCY',
+  authDomain: 'parketnanet.firebaseapp.com',
+  databaseURL: 'https://parketnanet.firebaseio.com',
+  projectId: 'parketnanet',
+  storageBucket: 'parketnanet.appspot.com',
+  messagingSenderId: '469908235514'
+};
+
+firebase.initializeApp(config);
+
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 
