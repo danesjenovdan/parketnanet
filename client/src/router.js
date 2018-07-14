@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Game from './views/Game.vue';
 import Login from './views/Login.vue';
+import OpponentSelection from './views/OpponentSelection.vue';
 
 import firebase from 'firebase';
 
@@ -12,11 +13,17 @@ const router = new Router({
     {
       path: '*',
       redirect: '/login'
-    },
-    {
+    }, {
       path: '/',
       name: 'game',
       component: Game,
+      meta: {
+        requiresAuth: true
+      },
+    }, {
+      path: '/opponent-selection',
+      name: 'oponnent-selection',
+      component: OpponentSelection,
       meta: {
         requiresAuth: true
       },

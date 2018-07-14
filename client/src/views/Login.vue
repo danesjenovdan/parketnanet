@@ -49,7 +49,7 @@ export default {
       // The signed-in user info.
       // var user = result.user;
 
-      this.$router.push('/');
+      this.$router.push('/opponent-selection');
     }).catch(function(error) {
       // Handle Errors here.
       // var errorCode = error.code;
