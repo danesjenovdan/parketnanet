@@ -10,7 +10,7 @@ const PORT = Number.parseInt(process.env.PORT || '8081', 10);
 
 const app = express();
 
-const clientPath = path.resolve(__dirname, '../client/dist');
+const clientPath = path.resolve(__dirname, '../../client/dist');
 app.use(express.static(clientPath));
 
 const server = http.createServer(app);
