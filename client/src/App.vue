@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <Navbar></Navbar>
+    <Card firstName="Jožef" lastName="Horvat" group="NSI" :attributes="attributes"></Card>
     <div>player deck: {{ playerDeck }}</div>
     <div>oponnent deck: {{ oponnentDeck }}</div>
     <div>player winnings: {{ playerWinnings }}</div>
@@ -13,11 +14,14 @@
 import { generateDeck } from './cards';
 // import state from './state';
 import HelloWorld from './components/HelloWorld.vue'
+import Card from './components/Card.vue'
+import Navbar from './components/Navbar.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    HelloWorld,
+      Card, Navbar
   },
   data() {
     return {
@@ -27,6 +31,9 @@ export default {
       playerWinnings: [],
       oponnentWinnings: [],
       turn: 'player',
+
+
+        attributes : [{name: 'Število mandatov', value: 3}],
     };
   },
   methods: {
@@ -44,12 +51,4 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>
