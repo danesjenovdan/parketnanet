@@ -30,7 +30,7 @@
         </div>
         <div class="row">
           <div class="offset-8 col-4">
-            <Deck :disabled="!canPlay" @click.native="processQueue" :queue-length="queue.length"></Deck>
+            <Deck :disabled="!canPlay" @click.native="next"></Deck>
           </div>
         </div>
       </template>
@@ -40,6 +40,7 @@
 </template>
 
 <script>
+import _ from 'lodash';
 import HelloWorld from "../components/HelloWorld.vue";
 import Card from "../components/Card.vue";
 import Navbar from "../components/Navbar.vue";
@@ -61,24 +62,23 @@ export default {
   },
   data() {
     return {
-      queue: [],
       state: null,
       socket: null,
       connectionState: 'NOT INITIALIZED',
     };
   },
   methods: {
-    processQueue() {
-      if (this.queue.length > 0) {
-        this.state = this.queue.shift();
-      }
+    next() {
+      const action = _.includes(['WAITING_FOR_REACTION', 'TURN_ENDED'], this.state.currentState)
+        ? 'CONFIRM'
+        : 'DRAW_CARD'
+      this.sendAction(action);
     },
     sendAction(action, data) {
       this.socket.emit("game", { action, data });
     },
     selectAttribute(attribute) {
       if (this.canPlay) {
-      //  this.state.playing = false;
         this.sendAction('SELECT_ATTRIBUTE', attribute.name);
       }
     }
@@ -96,10 +96,7 @@ export default {
 
     this.socket.on("game", response => {
       console.log('EVENT RECEIVED', 'game', response)
-      this.queue.push(response);
-      if (this.state === null) {
-        this.processQueue();
-      }
+      this.state = response;
     });
   }
 };
