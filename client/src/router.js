@@ -22,7 +22,7 @@ const router = new Router({
       },
     }, {
       path: '/opponent-selection',
-      name: 'oponnent-selection',
+      name: 'opponent-selection',
       component: OpponentSelection,
       meta: {
         requiresAuth: true
