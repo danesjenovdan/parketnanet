@@ -1,40 +1,40 @@
 /* eslint-disable no-console */
+const _ = require('lodash');
 const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
-const GameLogic = require('./GameLogic');
+const { createGame } = require('./GameLogic');
 
 const PORT = Number.parseInt(process.env.PORT || '8081', 10);
 
 const app = express();
 
-const clientPath = path.resolve(__dirname, '../client/dist');
+const clientPath = path.resolve(__dirname, '../../client/dist');
 app.use(express.static(clientPath));
 
 const server = http.createServer(app);
 const io = socketio(server);
-
-let player1 = null;
 
 const players = [];
 
 io.on('connection', (sock) => {
   sock.emit('status', 'CONNECTED');
 
-  if (player1 !== null) {
+  if (players.length) {
+    const player1 = players.shift();
     const player2 = sock;
 
     player1.emit('status', 'FOUND_OPPONENT');
     player2.emit('status', 'FOUND_OPPONENT');
 
-    new GameLogic(player1, player2);
-
-    player1 = null;
+    createGame(player1, player2);
   } else {
-    player1 = sock;
-    player1.emit('status', 'WAITING_FOR_OPPONENT');
-    player1.on('disconnect', () => { player1 = null; });
+    players.push(sock);
+    sock.emit('status', 'WAITING_FOR_OPPONENT');
+    sock.on('disconnect', () => {
+      _.pull(players, sock);
+    });
   }
 });
 

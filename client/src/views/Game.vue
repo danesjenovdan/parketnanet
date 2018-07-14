@@ -5,15 +5,27 @@
       <ConnectionState :state="connectionState"></ConnectionState>
       <template v-if="state && connectionState !== 'SOMEONE_DISCONNECTED'">
         <div class="row">
-          <div class="col-4">
+        <div class="col-12 my-5">
             <TurnOrder :state="state"></TurnOrder>
-            <Score class="mt-4" title="Tvoje točke" :score="state.score.you"></Score>
-            <Score class="mt-4" title="Nasprotnikove točke" :score="state.score.opponent"></Score>
-          </div>
-          <div class="col-8">
+
+            <div class="text-center">
+                <Deck :disabled="!canPlay" @click.native="next" :state="state"></Deck>
+            </div>
+        </div>
+
+            <div class="col-6">
+                <Score class="mt-4" title="Ti" :score="state.score.you"></Score>
+            </div>
+            <div class="col-6">
+                <Score class="mt-4" title="Nasprotnik" :score="state.score.opponent"></Score>
+            </div>
+          <div class="col-12">
             <div class="row">
               <div class="col-6">
                 <Card
+                        :isOpponent="false"
+
+                        :state="state"
                   v-if="state.cards.you"
                   @selectAttribute="selectAttribute"
                   v-bind="state.cards.you"
@@ -21,16 +33,13 @@
               </div>
               <div class="col-6">
                 <Card
-                  v-if="state.cards.opponent"
+                        :isOpponent="true"
+                :state="state"
+                v-if="state.cards.opponent"
                   v-bind="state.cards.opponent"
                 />
               </div>
             </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="offset-8 col-4">
-            <Deck :disabled="!canPlay" @click.native="next"></Deck>
           </div>
         </div>
       </template>

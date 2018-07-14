@@ -9,7 +9,7 @@ const STATES = [
   'GAME_ENDED',
 ];
 
-module.exports = class GameLogic {
+class GameLogic {
   constructor(p1, p2) {
     this.players = [p1, p2];
     this.players.forEach((player, index) => {
@@ -108,30 +108,31 @@ module.exports = class GameLogic {
     }
   }
 
-  generatePlayerState(index) {
+  generatePlayerState(playerIndex) {
     return {
-      playing: this.state.playing === index,
+      playing: this.state.playing === playerIndex,
       score: {
-        you: this.state.winnings[index].length,
-        opponent: this.state.winnings[1 - index].length,
+        you: this.state.winnings[playerIndex].length,
+        opponent: this.state.winnings[1 - playerIndex].length,
       },
       cards: {
-        you: this.state.pot[index],
-        opponent: this.state.selectedAttribute ? this.state.pot[1 - index] : null,
+        you: this.state.pot[playerIndex],
+        opponent: this.state.selectedAttribute ? this.state.pot[1 - playerIndex] : null,
       },
       selectedAttribute: this.state.selectedAttribute,
-      turnOutcome: (() => {
-        if (this.state.selectedAttribute) {
-          return this.getAttributeValueForPlayer(this.state.selectedAttribute, index)
-          > this.getAttributeValueForPlayer(this.state.selectedAttribute, 1 - index)
-            ? 'win'
-            : 'lose';
-        }
-        return 'undetermined';
-      })(),
-      gameOutcome: this.getGameOutcome(index),
+      turnOutcome: this.getTurnOutcome(playerIndex),
+      gameOutcome: this.getGameOutcome(playerIndex),
       currentState: this.getCurrentState(),
     };
+  }
+
+  getTurnOutcome(playerIndex) {
+    if (this.state.selectedAttribute) {
+      const current = this.getAttributeValueForPlayer(this.state.selectedAttribute, playerIndex);
+      const opponent = this.getAttributeValueForPlayer(this.state.selectedAttribute, 1 - playerIndex);
+      return current > opponent ? 'win' : 'lose';
+    }
+    return 'undetermined';
   }
 
   getGameOutcome(playerIndex) {
@@ -160,9 +161,10 @@ module.exports = class GameLogic {
   }
 
   killGame() {
-    console.log('GAME WAS KILLED');
     this.sendToPlayers('status', 'SOMEONE_DISCONNECTED');
     this.players.forEach(player => player.disconnect(true));
     this.players = [];
   }
-};
+}
+
+module.exports.createGame = (player1, player2) => new GameLogic(player1, player2);
