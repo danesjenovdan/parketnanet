@@ -16,7 +16,7 @@
 
 <script>
   export default {
-    name: 'Deck',
+    name: 'ConnectionState',
     props: ['state'],
     methods: {
       refresh: function () {

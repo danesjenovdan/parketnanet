@@ -1,26 +1,27 @@
 <template>
     <div class="turn-order">
-        <div class="card">
-            <div class="card-body bg-light text-center">
-                <div v-if="this.state.turnOutcome === 'undetermined'">
-                    <div v-if="shouldSelectAttribute">
-                        <h6 class="text-uppercase text-center">Ti si na vrsti</h6>
-                        <p class="mb-0 mt-5"><b>Izberi statistiko</b></p>
+        <div class="">
+            <div class="card-body text-center">
+                <div v-if="state.turnOutcome === 'undetermined'">
+
+                    <h1>{{ state.playing ? 'Ti si na vrsti' : 'Čakam nasprotnika' }}</h1>
+
+                    <div v-if="state.playing">
+                        <p>{{ humanReadableState }}</p>
+                    </div>
+                </div>
+                <div v-else="">
+                    <h1>{{ state.turnOutcome === 'win' ? 'Zmaga' : 'Sožalje' }}</h1>
+
+                    <div v-if="state.playing">
+                        <p>{{ humanReadableState }}</p>
                     </div>
                     <div v-else="">
-                        <h6 class="text-uppercase text-center">Nasprotnik je na vrsti</h6>
-                        <p class="mb-0 mt-5"><b>Počakaj, da izbere statistiko</b></p>
+                        <p>Čakam, da nasprotnik potrdi rezultat</p>
                     </div>
-                </div>
-                <div v-else-if="this.state.turnOutcome === 'win'">
-                    <h6>Čestitke</h6>
-                    <p class="mb-0">Dobil/a si točke.</p>
+
                 </div>
 
-                <div v-else="">
-                    <h6>Škoda</h6>
-                    <p class="mb-0">Tvoj nasprotnik je dobil točke</p>
-                </div>
             </div>
         </div>
     </div>
@@ -34,20 +35,23 @@
       state: Object,
     },
     computed: {
-      shouldSelectAttribute: function () {
-        if (this.state) {
-          return this.state.playing;
+      humanReadableState(){
+        switch (this.state.currentState)
+        {
+          case 'WAITING_FOR_ACTIVE_PLAYER':
+          case 'WAITING_FOR_INACTIVE_PLAYER':
+            //return 'Potegni karto';
+            return '';
+          case 'WAITING_FOR_ATTRIBUTE_SELECTION':
+            return 'Izberi statistiko';
+          case 'TURN_ENDED':
+          case 'WAITING_FOR_REACTION':
+            return 'Potrdi rezultat';
         }
 
-        return false;
+        return this.state.currentState;
       }
     }
-    /* data: function () {
-         return {
-             name: 'Jožef Horvat',
-             group: 'NSI',
-         }
-     }*/
   }
 </script>
 
