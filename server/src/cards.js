@@ -1,6 +1,7 @@
-import data from './data.json';
+const data = require('./data.json');
+const Card = require('./Card.js');
 
-const allCards = data.data.map(member => ({
+const allCards = data.data.map(member => new Card({
     name: member.person.name,
     party: member.person.party.acronym,
     attributes: [
@@ -9,6 +10,4 @@ const allCards = data.data.map(member => ({
     ]
 }))
 
-export const generateDeck = () => {
-    return allCards.splice(0, 10);
-}
+exports.generateDeck = () => allCards.splice(0, 10);

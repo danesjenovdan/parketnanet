@@ -3,13 +3,21 @@
         <Navbar></Navbar>
         <div class="container-fluid">
             <div class="row">
-                <div class="col-4">
+                <div class="col-4" v-if="state">
                     <TurnOrder></TurnOrder>
-                    <Score class="mt-4" title="Tvoje točke" :score="score.you"></Score>
-                    <Score class="mt-4" title="Nasprotnikove točke" :score="score.opponent"></Score>
+                    <Score class="mt-4" title="Tvoje točke" :score="state.score.you"></Score>
+                    <Score class="mt-4" title="Nasprotnikove točke" :score="state.score.opponent"></Score>
                 </div>
-                <div class="col-8">
-                    <Card v-if="card" @selectAttribute="playStat" :name="card.name" :party="card.party" :attributes="card.attributes"></Card>
+                <div class="col-8" v-if="state">
+                    <Card
+                      v-if="state.cards.you"
+                      @selectAttribute="playStat"
+                      v-bind="state.cards.you"
+                    />
+                    <Card
+                      v-if="state.cards.opponent"
+                      v-bind="state.cards.opponent"
+                    />
                 </div>
             </div>
             <div class="row">
@@ -22,9 +30,6 @@
 </template>
 
 <script>
-    import { drawCard, getScore, playStat } from './state';
-    import {generateDeck} from './cards';
-    import state from './state';
     import HelloWorld from './components/HelloWorld.vue';
     import Card from './components/Card.vue';
     import Navbar from './components/Navbar.vue';
@@ -40,29 +45,25 @@
         },
         data() {
             return {
+              state: null,
               card: null,
               turnOutcome: null,
-              score: getScore(),
               gameOver: false,
+              socket: io('http://127.0.0.1:8081'),
             };
         },
         methods: {
             drawCard() {
-                this.turnOutcome = null;
-                this.card = drawCard();
+                this.socket.emit('game', { action: 'DRAW_CARD' });
             },
-            playStat(stat) {
-                const outcome = playStat(stat.name)
-                this.turnOutcome = outcome.turn;
-                this.score = getScore();
-                
-                if (outcome.game !== 'undetermined') {
-                    this.gameOver = true;
-                    this.gameOutcome = `game over, you ${outcome.game}`;
-                }
-
-                this.card = null;
-            }
+            playStat(stat) {},
         },
+        created() {
+          this.socket.on('status', response => {
+            console.log(response);
+          });
+
+          this.socket.on('game', response => this.state = response);
+        }
     };
 </script>

@@ -14,7 +14,7 @@
         name: 'Score',
         props: {
             title: String,
-            score: String,
+            score: Number,
         },
     }
 </script>

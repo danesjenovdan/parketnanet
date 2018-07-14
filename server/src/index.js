@@ -5,7 +5,7 @@ const express = require('express');
 const socketio = require('socket.io');
 const GameLogic = require('./GameLogic');
 
-const PORT = Number.parseInt(process.env.PORT || '8080', 10);
+const PORT = Number.parseInt(process.env.PORT || '8081', 10);
 
 const app = express();
 
@@ -26,7 +26,7 @@ io.on('connection', (sock) => {
     player1.emit('status', 'FOUND_OPPONENT');
     player2.emit('status', 'FOUND_OPPONENT');
 
-    GameLogic.create(player1, player2);
+    new GameLogic(player1, player2);
 
     player1 = null;
   } else {

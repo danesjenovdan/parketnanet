@@ -1,15 +1,23 @@
+const { generateDeck } = require('./cards');
+
 module.exports = class GameLogic {
-  create(p1, p2) {
+  constructor(p1, p2) {
     this.players = [p1, p2];
-    this.turns = [null, null];
+    
+    this.state = {
+      decks: [generateDeck(), generateDeck()],
+      pot: [],
+      winnings: [[], []],
+      playing: 0,
+      selectedAttribute: null,
+    }
+
+    this.players.forEach((player, index) => {
+      player.on('game', payload => this.onAction(index, payload))
+    })
 
     this.sendToPlayers('status', 'GAME_START');
-
-    // this.players.forEach((player, idx) => {
-    //   player.on('turn', (turn) => {
-    //     this.onTurn(idx, turn);
-    //   });
-    // });
+    this.sendState();
   }
 
   sendToPlayers(type, data) {
@@ -20,5 +28,55 @@ module.exports = class GameLogic {
 
   sendToPlayer(i, type, data) {
     this.players[i].emit(type, data);
+  }
+
+  generatePlayerState(index) {
+    return {
+      playing: this.state.playing === index,
+      score: {
+        you: this.state.winnings[index].length,
+        opponent: this.state.winnings[1 - index].length,
+      },
+      cards: {
+        you: this.state.pot[index],
+        opponent: this.state.selectedAttribute ? this.state.pot[1 - index] : null,
+      },
+      selectedAttribute: this.state.selectedAttribute,
+      turnOutcome: (() => {
+        if (this.state.selectedAttribute) {
+          return this.state.pot[index].getAttribute(this.state.selectedAttribute).value >
+            this.state.pot[1-index].getAttribute(this.state.selectedAttribute).value
+              ? 'win'
+              : 'lose';
+        }
+        return 'undetermined'
+      })(),
+      gameOutcome: (() => {
+        if (this.state.decks[0].length === 0) {
+          return this.state.decks[index].length > this.state.decks[1 - index].length
+            ? 'win'
+            : 'lose';
+        }
+        return 'undetermined';
+      })()
+    }
+  }
+
+  sendState() {
+    this.sendToPlayer(0, 'game', this.generatePlayerState(0))
+    this.sendToPlayer(1, 'game', this.generatePlayerState(1))
+  }
+
+  onAction(playerIndex, { action }) {
+    if (this.state.playing === playerIndex) {
+      switch(action) {
+        case 'DRAW_CARD':
+          this.state.pot = [this.state.decks[0].pop(), this.state.decks[1].pop()];
+          break;
+        default:
+          break;
+      }
+    }
+    this.sendState();
   }
 };
