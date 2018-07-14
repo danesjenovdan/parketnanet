@@ -78,6 +78,7 @@
 
     import Scorekeeper from '../components/Scorekeeper.vue';
 
+<<<<<<< Updated upstream
     export default {
         name: "app",
         components: {
@@ -127,6 +128,53 @@
             this.socket.on("game", response => {
                 console.log('EVENT RECEIVED', 'game', response)
                 this.state = response;
+=======
+export default {
+  name: "app",
+  components: {
+    HelloWorld,
+    Card,
+    Navbar,
+    TurnOrder,
+    Score,
+    Deck,
+    ConnectionState,
+    Scorekeeper,
+  },
+  data() {
+    return {
+      state: null,
+      socket: null,
+      connectionState: 'NOT INITIALIZED',
+    };
+  },
+  methods: {
+    next() {
+      const action = _.includes(['WAITING_FOR_REACTION', 'TURN_ENDED'], this.state.currentState)
+        ? 'CONFIRM'
+        : 'DRAW_CARD'
+      this.sendAction(action);
+    },
+    sendAction(action, data) {
+      this.socket.emit("game", { action, data });
+    },
+    selectAttribute(attribute) {
+      if (this.canPlay) {
+        this.sendAction('SELECT_ATTRIBUTE', attribute.name);
+      }
+    }
+  },
+  computed: {
+    canPlay() {
+      return this.state.playing;
+    }
+  },
+  created() {
+    this.socket = io();
+    this.socket.on("status", response => {
+      this.connectionState = response;
+    });
+>>>>>>> Stashed changes
 
                 if (this.state.currentState === 'GAME_ENDED') {
                     this.$refs.scorekeeper.incrementScore(this.state.score.you);
