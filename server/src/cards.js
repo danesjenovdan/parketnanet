@@ -5,6 +5,7 @@ const Card = require('./Card.js');
 const allCards = data.data.map(member => new Card({
   name: member.person.name,
   party: member.person.party.acronym,
+  imageId: member.person.gov_id,
   attributes: [
     { name: 'mandates', value: member.results.mandates.score },
     { name: 'education', value: Number(member.results.education.score.replace('/', '.')) },

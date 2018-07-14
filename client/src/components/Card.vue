@@ -36,7 +36,7 @@
         name: 'Card',
         props: {
             name: String,
-            portraitUrl: String,
+            imageId: String,
             party: String,
             attributes: Array,
         },
