@@ -44,7 +44,7 @@
         </div>
       </template>
     </div>
-    <router-view/>
+    <scorekeeper></scorekeeper>
   </div>
 </template>
 
@@ -58,6 +58,8 @@ import Score from "../components/Score.vue";
 import Deck from "../components/Deck.vue";
 import ConnectionState from "../components/ConnectionState.vue";
 
+import Scorekeeper from '../components/Scorekeeper.vue';
+
 export default {
   name: "app",
   components: {
@@ -68,6 +70,7 @@ export default {
     Score,
     Deck,
     ConnectionState,
+    Scorekeeper,
   },
   data() {
     return {
