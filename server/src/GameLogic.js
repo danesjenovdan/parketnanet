@@ -1,5 +1,14 @@
 const { generateDeck } = require('./cards');
 
+const STATES = [
+  'WAITING_FOR_ACTIVE_PLAYER',
+  'WAITING_FOR_INACTIVE_PLAYER',
+  'WAITING_FOR_ATTRIBUTE_SELECTION',
+  'WAITING_FOR_REACTION',
+  'TURN_ENDED',
+  'GAME_ENDED',
+];
+
 module.exports = class GameLogic {
   constructor(p1, p2) {
     this.players = [p1, p2];
@@ -15,10 +24,15 @@ module.exports = class GameLogic {
       winnings: [[], []],
       playing: 0,
       selectedAttribute: null,
+      currentState: 0,
+      turnWinner: -1,
     };
 
-    this.drawCards();
     this.sendState();
+  }
+
+  getCurrentState() {
+    return STATES[this.state.currentState];
   }
 
   getAttributeValueForPlayer(attributeName, playerIndex) {
@@ -35,8 +49,66 @@ module.exports = class GameLogic {
     this.players[i].emit(type, data);
   }
 
+  resolveState(playerIndex, action, data) {
+    switch (this.getCurrentState()) {
+      case 'WAITING_FOR_ACTIVE_PLAYER':
+      case 'WAITING_FOR_INACTIVE_PLAYER': {
+        if (action === 'DRAW_CARD') {
+          this.drawCard(playerIndex);
+          this.state.playing = 1 - this.state.playing;
+          this.nextState();
+        }
+        break;
+      }
+      case 'WAITING_FOR_ATTRIBUTE_SELECTION': {
+        if (action === 'SELECT_ATTRIBUTE') {
+          this.state.selectedAttribute = data;
+          this.state.playing = 1 - this.state.playing;
+          this.nextState();
+        }
+        break;
+      }
+      case 'WAITING_FOR_REACTION': {
+        if (action === 'CONFIRM') {
+          const current = this.getAttributeValueForPlayer(this.state.selectedAttribute, playerIndex);
+          const opponent = this.getAttributeValueForPlayer(this.state.selectedAttribute, 1 - playerIndex);
+          if (current > opponent) {
+            this.state.winnings[playerIndex].push(...this.state.pot);
+            this.state.turnWinner = playerIndex;
+          } else if (current === opponent) {
+            // TODO
+          } else {
+            this.state.winnings[1 - playerIndex].push(...this.state.pot);
+            this.state.turnWinner = 1 - playerIndex;
+          }
+          this.state.playing = 1 - playerIndex;
+          this.nextState();
+        }
+        break;
+      }
+      case 'TURN_ENDED': {
+        if (action === 'CONFIRM') {
+          this.state.playing = this.state.turnWinner;
+          this.state.selectedAttribute = null;
+          this.state.pot = [];
+          this.nextState();
+        }
+        break;
+      }
+      case 'GAME_ENDED':
+      default:
+        break;
+    }
+  }
+
+  nextState() {
+    this.state.currentState = (this.state.currentState + 1) % STATES.length;
+    if (this.getCurrentState() === 'GAME_ENDED' && this.getGameOutcome(0) === 'undetermined') {
+      this.nextState();
+    }
+  }
+
   generatePlayerState(index) {
-    console.log(this.state.pot)
     return {
       playing: this.state.playing === index,
       score: {
@@ -57,15 +129,18 @@ module.exports = class GameLogic {
         }
         return 'undetermined';
       })(),
-      gameOutcome: (() => {
-        if (this.state.decks[0].length === 0) {
-          return this.state.decks[index].length > this.state.decks[1 - index].length
-            ? 'win'
-            : 'lose';
-        }
-        return 'undetermined';
-      })(),
+      gameOutcome: this.getGameOutcome(index),
+      currentState: this.getCurrentState(),
     };
+  }
+
+  getGameOutcome(playerIndex) {
+    if (this.state.decks[0].length === 0) {
+      return this.state.decks[playerIndex].length > this.state.decks[1 - playerIndex].length
+        ? 'win'
+        : 'lose';
+    }
+    return 'undetermined';
   }
 
   sendState() {
@@ -73,33 +148,14 @@ module.exports = class GameLogic {
     this.sendToPlayer(1, 'game', this.generatePlayerState(1));
   }
 
-  drawCards() {
-    this.state.pot = [this.state.decks[0].pop(), this.state.decks[1].pop()];
+  drawCard(playerIndex) {
+    this.state.pot[playerIndex] = this.state.decks[playerIndex].pop();
   }
 
   onAction(playerIndex, { action, data }) {
     if (this.state.playing === playerIndex) {
-      switch (action) {
-        case 'SELECT_ATTRIBUTE': {
-          this.state.selectedAttribute = data;
-          this.sendState();
-          const current = this.getAttributeValueForPlayer(this.state.selectedAttribute, playerIndex);
-          const opponent = this.getAttributeValueForPlayer(this.state.selectedAttribute, 1 - playerIndex);
-          if (current > opponent) {
-            this.state.winnings[playerIndex].push(...this.state.pot);
-          } else if (current === opponent) {
-            // TODO
-          } else {
-            this.state.winnings[1 - playerIndex].push(...this.state.pot);
-          }
-          this.state.selectedAttribute = null;
-          this.drawCards();
-          this.sendState();
-          break;
-        }
-        default:
-          break;
-      }
+      this.resolveState(playerIndex, action, data);
+      this.sendState();
     }
   }
 

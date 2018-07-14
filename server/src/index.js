@@ -17,10 +17,12 @@ const io = socketio(server);
 
 let player1 = null;
 
+const players = [];
+
 io.on('connection', (sock) => {
   sock.emit('status', 'CONNECTED');
 
-  if (player1 != null) {
+  if (player1 !== null) {
     const player2 = sock;
 
     player1.emit('status', 'FOUND_OPPONENT');
